@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"github.com/FudSy/DevVault/internal/pkg/models"
 	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
@@ -19,15 +20,22 @@ type Config struct {
 type DB struct {
 	Database *gorm.DB
 }
-	
 
-func New(dsn string) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func (c *Config) DSN() string {
+	return fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode,
+	)
+}
+
+func New(dsn string) (*DB, error) {
+	gdb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db := &DB{Database: gdb}
 	return db, err
 }
 
-func Migrate(db *gorm.DB) {
-	db.AutoMigrate(&models.User{}, &models.Snippet{}, &models.Favorite{})
+func (db *DB) Migrate() {
+	db.Database.AutoMigrate(&models.User{}, &models.Snippet{}, &models.Favorite{})
 }
 
 func (d *DB) CreateUser(user *models.User) error{
