@@ -3,12 +3,16 @@ package config
 import (
 	"log"
 	"os"
-	"github.com/joho/godotenv"
+	"strings"
+
 	"github.com/FudSy/DevVault/internal/pkg/postgres"
+	logger "github.com/FudSy/DevVault/pkg"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
 	Postgres postgres.Config
+	Logger logger.Config
 }
 
 func InitCfg() (cfg *Config){
@@ -24,6 +28,9 @@ func InitCfg() (cfg *Config){
 			Port: os.Getenv("PG_Port"),
 			SSLMode: os.Getenv("PG_SSLMode"),
 			User: os.Getenv("PG_User"),
+		},
+		Logger: logger.Config{
+			Level: strings.ToLower(os.Getenv("LOG_LEVEL")),
 		},
 	}
 	return cfg
