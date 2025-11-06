@@ -1,9 +1,11 @@
 package postgres
 
 import (
+	"errors"
 	"fmt"
+
 	"github.com/FudSy/DevVault/internal/pkg/models"
-	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -28,20 +30,37 @@ func (c *Config) DSN() string {
 	)
 }
 
-func New(dsn string) (*DB, error) {
+func New(dsn string) (*DB) {
 	gdb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal().Msg("Error while opening connection to DB")
+	}
+	log.Info().Msg("DB connection opened")
 	db := &DB{Database: gdb}
-	return db, err
+	return db
 }
 
 func (db *DB) Migrate() {
-	db.Database.AutoMigrate(&models.User{}, &models.Snippet{}, &models.Favorite{})
+	err := db.Database.AutoMigrate(&models.User{}, &models.Snippet{}, &models.Favorite{})
+	if err != nil {
+		log.Fatal().Msg("Error while migrating DB")
+	}
 }
 
 func (d *DB) CreateUser(user *models.User) error{
 	return d.Database.Create(&user).Error
 }
 
-func (d *DB) GetUser(id uuid.UUID) error{
-	return d.Database.Find(&models.User{}).Where("id = ?", id).Error
+func (d *DB) GetUserByUsername(username string) (*models.User, error) {
+	var user models.User
+
+	err := d.Database.Where("username = ?", username).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, gorm.ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }
