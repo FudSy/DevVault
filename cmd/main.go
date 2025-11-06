@@ -8,8 +8,12 @@ import (
 
 func main() {
 	cfg := config.InitCfg()
-	db, _ := postgres.New(cfg.Postgres.DSN())
+
+	cfg.Logger.Init()
+
+	db := postgres.New(cfg.Postgres.DSN())
 	db.Migrate()
+
 	r := service.Router(db)
 
 	r.Run()
