@@ -11,6 +11,8 @@ func Router(postgres *postgres.DB) *gin.Engine {
 	handlers := NewHandlers(postgres)
 
 	r.POST("/register", handlers.CreateUser)
+	r.POST("/login", handlers.Login)
+	r.POST("/createSnippet", handlers.CreateSnippet)
 
 	return r
 }

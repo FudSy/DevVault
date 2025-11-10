@@ -47,6 +47,7 @@ func (db *DB) Migrate() {
 	}
 }
 
+// User 
 func (d *DB) CreateUser(user *models.User) error{
 	return d.Database.Create(&user).Error
 }
@@ -63,4 +64,9 @@ func (d *DB) GetUserByUsername(username string) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+// Snippet
+func (d *DB) CreateSnippet(snippet models.Snippet) error {
+	return d.Database.Create(&snippet).Error
 }

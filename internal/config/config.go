@@ -1,13 +1,13 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strings"
 
 	"github.com/FudSy/DevVault/internal/pkg/postgres"
 	logger "github.com/FudSy/DevVault/pkg"
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
@@ -18,7 +18,7 @@ type Config struct {
 func InitCfg() (cfg *Config){
 	err := godotenv.Load()
   	if err != nil {
-    	log.Fatal("Error loading .env file")
+    	log.Fatal().Msg("Error while opening .env file")
   	}
 	cfg = &Config{
 		Postgres: postgres.Config{
