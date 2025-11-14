@@ -11,7 +11,7 @@ func Router(postgres *postgres.DB) *gin.Engine {
 
 	handlers := NewHandlers(postgres)
 
-	r.POST("/register", handlers.CreateUser)
+	r.POST("/register", handlers.Register)
 	r.POST("/login", handlers.Login)
 
 	auth := r.Group("/", middleware.Auth())
