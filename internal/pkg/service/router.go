@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/FudSy/DevVault/internal/pkg/middleware"
 	"github.com/FudSy/DevVault/internal/pkg/postgres"
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +13,11 @@ func Router(postgres *postgres.DB) *gin.Engine {
 
 	r.POST("/register", handlers.CreateUser)
 	r.POST("/login", handlers.Login)
-	r.POST("/createSnippet", handlers.CreateSnippet)
+
+	auth := r.Group("/", middleware.Auth())
+	{
+		auth.POST("/createSnippet", handlers.CreateSnippet)
+	}
 
 	return r
 }
