@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/FudSy/DevVault/internal/pkg/models"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -69,4 +70,47 @@ func (d *DB) GetUserByUsername(username string) (*models.User, error) {
 // Snippet
 func (d *DB) CreateSnippet(snippet models.Snippet) error {
 	return d.Database.Create(&snippet).Error
+}
+
+func (d *DB) UpdateSnippet(snippet models.Snippet, id uuid.UUID, userID uuid.UUID) error {
+	var result models.Snippet
+
+	err := d.Database.Where("id = ? AND user_id = ?", id, userID).First(&result).Error
+	if err != nil {
+		return err
+	}
+
+	return d.Database.Model(&result).Updates(map[string]interface{}{
+		"title":       snippet.Title,
+		"code":        snippet.Code,
+		"language":    snippet.Language,
+		"description": snippet.Description,
+		"is_public":   snippet.IsPublic,
+		"updated_at": snippet.UpdatedAt,
+	}).Error
+}
+
+func (d *DB) DeleteSnippet(id uuid.UUID, userID uuid.UUID) error {
+	var result models.Snippet
+
+	err := d.Database.Where("id = ? AND user_id = ?", id, userID).First(&result).Error
+	if err != nil {
+		return err
+	}
+
+	return d.Database.Delete(&result).Error
+}
+
+func (d *DB) GetSnippet(id uuid.UUID, userID uuid.UUID) (models.Snippet, error) {
+	var result models.Snippet
+
+	err := d.Database.Where("id = ?", id).First(&result).Error
+	if err != nil {
+		return models.Snippet{}, err
+	}
+	if !result.IsPublic && result.UserID != userID {
+		return models.Snippet{}, errors.New("not enough permissions to view")
+	}
+
+	return result, nil
 }
