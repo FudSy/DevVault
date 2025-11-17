@@ -16,7 +16,10 @@ func Router(postgres *postgres.DB) *gin.Engine {
 
 	auth := r.Group("/", middleware.Auth())
 	{
-		auth.POST("/createSnippet", handlers.CreateSnippet)
+		auth.POST("/snippet", handlers.CreateSnippet)
+		auth.GET("/snippet", handlers.GetSnippet)
+		auth.PUT("/snippet", handlers.UpdateSnippet)
+		auth.DELETE("/snippet", handlers.DeleteSnippet)
 	}
 
 	return r
